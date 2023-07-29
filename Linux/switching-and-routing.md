@@ -1,14 +1,19 @@
 # Switching and Routing
 
 
-
+## Network Diagram
 
 
 ```mermaid
-graph TD;
+
     APP01<--ROUTER-->APP03;
     APP02<--ROUTER-->APP04;
 ```
+
+
+### Detailed network diagram 
+
+![Network Diagram](./network-diagram.png "Network Diagram")
 
 
 
@@ -34,21 +39,16 @@ thor@jump_host ~$ ip a
 ```
 
 
-thor@jump_host ~$ route
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
-default         gateway         0.0.0.0         UG    0      0        0 eth0
-172.16.238.0    0.0.0.0         255.255.255.0   U     0      0        0 eth0
-172.17.0.0      0.0.0.0         255.255.0.0     U     0      0        0 eth1
-
 
 
 
 
 ## Configuring app01 IP address 172.16.238.15/24
 
+```
 thor@jump_host ~$ ssh app01
 Last login: Fri Jul 28 19:29:43 2023 from jump_host.devops-networking-switching_app_net
+```
 
 
 ```
@@ -105,7 +105,7 @@ Notice the new IP 172.16.238.15/24
 
 
 
-###########
+
 
 ## Configuring app02 IP address 172.16.238.16/24
 
@@ -168,7 +168,7 @@ Warning: Permanently added 'app02,172.16.238.12' (ECDSA) to the list of known ho
 
 
 
-##########
+
 
 ## Configuring app03 IP address 172.16.239.15/24 
 
@@ -224,7 +224,6 @@ Warning: Permanently added 'app03,172.16.238.13' (ECDSA) to the list of known ho
 ```
 
 
-#########
 
 ## Configuring app03 IP address 172.16.239.16/24 
 
@@ -274,7 +273,7 @@ Warning: Permanently added 'app04,172.16.238.14' (ECDSA) to the list of known ho
 [thor@app04 ~]$ sudo ip addr del 172.16.238.14/24 dev eth0
 ```
 
-########
+
 
 
 
@@ -319,7 +318,6 @@ thor@jump_host ~$ ip a
 
 
 
-##########
 
 ### To allow app01 to reach app03 and app04
 
@@ -342,7 +340,6 @@ thor@jump_host ~$ ip a
 
 
 
-#######
 
 
 ### To allow app03 and app04 to reach app01 and app02
