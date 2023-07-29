@@ -5,7 +5,7 @@
 
 
 ```mermaid
-graph diagram;
+graph TD;
     APP01<--ROUTER-->APP03;
     APP02<--ROUTER-->APP04;
 ```
