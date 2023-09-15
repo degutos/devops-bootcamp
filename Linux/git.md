@@ -471,6 +471,81 @@ When you usually switch to a new branch you usually reach the head of that branc
 
 
 
+## Remote repository
+
+We can have a remote repository to push our code to
+Sample:
+- github
+- gitlab
+- bitbucket
+
+We will need a connection string to reach the remote address
+
+```
+$ git remote add origin htts://..../.../[name].git
+```
+
+we can use the above command with `origin` as an alias in order to not have to type the connection string every time
+
+
+We can use the below command to list all the remote repository
+
+```
+$ git remote -v 
+```
+
+
+### Pushing
+
+We can sync our local repo to remote repo
+
+```
+$ git push origin master
+```
+
+### Creating a remote repository
+
+We can use Github, gitlab or bucket to create a new repository under our accout 
+Once we create a new repository we are able to push our local code into it
+
+
+#### Adding the local repository to reach the remote repo
+
+```
+sarah (master)$ git remote add origin http://git.example.com/sarah/story-blog.git
+sarah (master)$ git remote -v
+origin  http://git.example.com/sarah/story-blog.git (fetch)
+origin  http://git.example.com/sarah/story-blog.git (push)
+```
+
+
+#### Pushing our local code into our remote repository
+
+```
+sarah (master)$ git push origin master
+Username for 'http://git.example.com': sarah
+Password for 'http://sarah@git.example.com': 
+Enumerating objects: 14, done.
+Counting objects: 100% (14/14), done.
+Delta compression using up to 36 threads
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (14/14), 2.05 KiB | 2.05 MiB/s, done.
+Total 14 (delta 4), reused 0 (delta 0), pack-reused 0
+remote: . Processing 1 references
+remote: Processed 1 references in total
+To http://git.example.com/sarah/story-blog.git
+ * [new branch]      master -> master
+```
+
+- After pushing our code to remote repository we wil be able to see it into our remote UI (github)
+- The above command pushed the local code into the MASTER remote branch, we don't want people push their code directly into master branch. Let's do it the right way creating a Pull Request
+
+
+
+
+
+
+
 
 ### Pull Request
 
@@ -538,7 +613,7 @@ max (story/fox-and-grapes)$ git commit -m "Added fox-and-grapes story"
  create mode 100644 fox-and-grapes.txt
 ```
 
-#### Pushing the local branch into new branch story/fox-and-grapes
+#### Pushing the local branch into new remote branch story/fox-and-grapes
 
 ```
 max (story/fox-and-grapes)$ git push  origin story/fox-and-grapes
@@ -560,12 +635,216 @@ To http://git.example.com/sarah/story-blog
  * [new branch]      story/fox-and-grapes -> story/fox-and-grapes
 ```
 
+- Now we can go to UI and see that new code was pushed into a new remote branch created 
+- We can now create a new PR to merge story/fox-and-grapes into master branch
+- We can also add reviewers to our new created PR 
 - Login as another user in git and review and approve the PR
 - Once the PR as merged we should see the change in Master branch
 
 
 
 
+
+### Fetching and Pulling
+
+
+When we push our code to a remote new branch and create a Pull request to merge the code from the new branch into the master branch all the manual process is made manually through the UI, that means our local repository doensn't know about this merge, we will need to inform our local repository (master branch) about that change.
+
+
+In order to update our remote master branch into our local repo run the fetch command to fech the remote branch into local repo
+
+```
+$ git fetch origin master
+```
+
+
+Example:
+
+```
+sarah (master)$ git fetch origin master
+remote: Enumerating objects: 4, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (3/3), 724 bytes | 724.00 KiB/s, done.
+From http://git.example.com/sarah/story-blog
+ * branch            master     -> FETCH_HEAD
+   d8a9d39..c5b2ec6  master     -> origin/master
+```
+
+To see all our branches, local and remote run:
+
+```
+sarah (master)$ git branch -a
+* master
+  story/frogs-and-ox
+  remotes/origin/master
+```
+
+
+In order to merge our origin master into localhost we run 
+
+```
+$ git merge origin/master
+```
+
+Example:
+
+```
+sarah (master)$ git merge origin/master
+Updating d8a9d39..c5b2ec6
+Fast-forward
+ fox-and-grapes.txt | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 fox-and-grapes.txt
+```
+
+We also can run the pull command instead of the two commands above
+
+```
+$ git pull origin master
+```
+
+Example:
+
+```
+sarah (master)$ git pull origin master
+remote: Enumerating objects: 4, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (3/3), 776 bytes | 776.00 KiB/s, done.
+From http://git.example.com/sarah/story-blog
+ * branch            master     -> FETCH_HEAD
+   c5b2ec6..139810f  master     -> origin/master
+Updating c5b2ec6..139810f
+Fast-forward
+ donkey-and-dog.txt | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+ create mode 100644 donkey-and-dog.txt
+```
+
+
+### Merging conflicts
+
+- Sometimes people add files and push code into the remote repo and you pull the code before pushing your code to Github. If not you will ge some error:
+
+
+```
+max (master)$ git push origin master
+To http://git.example.com/sarah/story-blog.git
+ ! [rejected]        master -> master (fetch first)
+error: failed to push some refs to 'http://git.example.com/sarah/story-blog.git'
+hint: Updates were rejected because the remote contains work that you do
+hint: not have locally. This is usually caused by another repository pushing
+hint: to the same ref. You may want to first integrate the remote changes
+hint: (e.g., 'git pull ...') before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+```
+
+
+Now to fix this we need to pull remote into local 
+
+```
+max (master)$ git pull origin master
+remote: Enumerating objects: 4, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+Unpacking objects: 100% (3/3), 304 bytes | 304.00 KiB/s, done.
+From http://git.example.com/sarah/story-blog
+ * branch            master     -> FETCH_HEAD
+   9f8f574..35d6daa  master     -> origin/master
+hint: Pulling without specifying how to reconcile divergent branches is
+hint: discouraged. You can squelch this message by running one of the following
+hint: commands sometime before your next pull:
+hint: 
+hint:   git config pull.rebase false  # merge (the default strategy)
+hint:   git config pull.rebase true   # rebase
+hint:   git config pull.ff only       # fast-forward only
+hint: 
+hint: You can replace "git config" with "git config --global" to set a default
+hint: preference for all repositories. You can also pass --rebase, --no-rebase,
+hint: or --ff-only on the command line to override the configured default per
+hint: invocation.
+CONFLICT (add/add): Merge conflict in story-index.txt
+Auto-merging story-index.txt
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+The problem is our local repo has the same file in remote repo, when we pull the remote code to local the file story-index.txt is conflitant and will be saved with both content (merged)
+
+Last log can show us that the file was added before
+
+```
+max (master)$ git log | head -n 5
+commit b0cf26d945e879b5ed9f6f1595c40eed013a3c64
+Author: max <max@example.com>
+Date:   Fri Sep 15 09:13:25 2023 +0000
+
+    Add index of stories
+```
+
+
+Lets see the conflict 
+
+```
+max (master)$ cat story-index.txt 
+<<<<<<< HEAD
+1. The Lion and the Mooose
+2. The Frogs and the Ox
+3. The Fox and the Grapes
+4. The Donkey and the Dog
+=======
+1. The Lion and the Mouse
+2. The Frogs and the Ox
+3. The Fox and the Grapes
+>>>>>>> 35d6daa2088b92d95d2dae9f6ba96fa39ec3832d
+```
+
+- Now we should edit the file above and fix the change manually. After that save the file and commit the fix
+
+
+```
+max (master)$ cat story-index.txt 
+1. The Lion and the Mouse
+2. The Frogs and the Ox
+3. The Fox and the Grapes
+4. The Donkey and the Dog
+```
+
+```
+max (master)$ git add story-index.txt 
+max (master)$ git commit -m "Resolved merge conflicts and merged story index"
+[master 92456dd] Resolved merge conflicts and merged story index
+```
+
+
+- Now we push the fix to github
+
+```
+max (master)$ git push origin master
+Enumerating objects: 9, done.
+Counting objects: 100% (9/9), done.
+Delta compression using up to 36 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 626 bytes | 626.00 KiB/s, done.
+Total 6 (delta 3), reused 0 (delta 0), pack-reused 0
+remote: . Processing 1 references
+remote: Processed 1 references in total
+To http://git.example.com/sarah/story-blog.git
+   35d6daa..92456dd  master -> master
+```
+
+
+
+### Fork
+
+- We can fork a project into our repository and change it as we wish. All we will need is a read access to the original repository
+- I user can fork a project, change it and sent a new PR to the original project to approve or not the change 
+- We can use the UI to fork any project we want since we have read access
+- After forking we can clone it into our local computer, change it and push the change to remote forked project
+- After that we can create a PR from our forked project into the original project and wait for review and approval to our code into the original repository 
 
 
 
