@@ -35,7 +35,9 @@ go: downloading go.uber.org/zap v1.20.0
 ...
 2023-09-15T10:40:56.085Z        DEBUG   logger/gormlogger.go:58 [gorm] INSERT INTO `format_master` (`name`) VALUES ("Paper Book")
 2023-09-15T10:40:56.088Z        DEBUG   logger/gormlogger.go:58 [gorm] INSERT INTO `format_master` (`name`) VALUES ("e-Book")
-2023-09-15T10:40:56.152Z        INFO    go-webapp-sample/main.go:42     Served the static contents. path: ./public/
+2023-09-15T10:40:56.152Z        INFO    go-webapp-sample/main.go:42     Served the static contents. path: ./
+
+public/
 
    ____    __
   / __/___/ /  ___
@@ -49,3 +51,18 @@ ____________________________________O/_______
 ```
 
 
+
+
+# CI / CD - Continuos Integration and Continuos Delivery 
+
+## CI
+
+CI is the process to test your code, unit test and integration test, all dependencies are satisfyied, all the security checks are run on your code, is also the place where you package your code and leave it ready to deploy.
+
+
+## CD - Continous delivery or continuos deployment
+
+Once the package is done your will need get package and deploy it in the environment.
+
+
+ 
