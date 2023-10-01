@@ -56,5 +56,22 @@ WARNING: The requested image's platform (linux/amd64) does not match the detecte
           \____\______/
 ```
 
+## Docker commands
+
+
+```
+$ docker ps # shows running container
+$ docker ps -a # shows all container running and stopped 
+$ docker stop silly_sammet # stop a container
+$ docker rm silly_sammet # remove a container forever
+$ docker images # shows all images we have downloaded
+$ docker rmi image_name # delete an image 
+$ docker run nginx # run and download an image
+$ docker pull image # download an image
+$ docker run ubuntu sleep 15 # run container ubuntu and runs sleep for 15 seconds
+$ docker exec distracted_rock cat /etc/hosts # exec a command within a container
+$ docker attach container_id # connect/attach to a container 
+$ docker run -d ubuntu # run container in daemon mode 
+```
 
 
