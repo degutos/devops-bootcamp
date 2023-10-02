@@ -1,4 +1,4 @@
-# Docker
+ # Docker
 
 ## Docker versions
 
@@ -69,9 +69,10 @@ $ docker rmi image_name # delete an image
 $ docker run nginx # run and download an image
 $ docker pull image # download an image
 $ docker run ubuntu sleep 15 # run container ubuntu and runs sleep for 15 seconds
-$ docker exec distracted_rock cat /etc/hosts # exec a command within a container
+$ docker exec distracted_rock cat /etc/hosts # exec a command within a running container
 $ docker attach container_id # connect/attach to a container 
 $ docker run -d ubuntu # run container in daemon mode 
+$ docker run -it centos bash # run a container centos in interactive mode using bash console
 ```
 
 
