@@ -60,6 +60,7 @@ WARNING: The requested image's platform (linux/amd64) does not match the detecte
 
 
 ```
+$ docker -v # check docker engine version 
 $ docker ps # shows running container
 $ docker ps -a # shows all container running and stopped 
 $ docker stop silly_sammet # stop a container
@@ -73,6 +74,45 @@ $ docker exec distracted_rock cat /etc/hosts # exec a command within a running c
 $ docker attach container_id # connect/attach to a container 
 $ docker run -d ubuntu # run container in daemon mode 
 $ docker run -it centos bash # run a container centos in interactive mode using bash console
+$ docker rmi $(docker images -q) # remove all images
+$ docker rm $(docker ps -a -q) # remove all containers
+$ docker pull nginx:1.14-alpine # pull an image 
 ```
 
+```
+$ docker ps
+CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS     NAMES
+3cfb24e9d24c   alpine         "sleep 1000"             About a minute ago   Up About a minute             sad_banzai
+4b35261bad8c   nginx:alpine   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    nginx-2
+8827d8811ed6   nginx:alpine   "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp    nginx-1
+e61157d7b44c   ubuntu         "sleep 1000"             About a minute ago   Up About a minute             awesome_northcut
+```
+
+# Run a container and map a port into the node
+
+```
+$ docker run -p 80:8080 nginx # run a container and map a port 80 on the worker node to port 8080 on the container
+```
+
+
+# Run container and map volume
+
+```
+$ docker run -v /opt/datadir:/var/lib/mysql mysql 
+```
+
+# docker inspect and docker logs
+
+```
+$ docker inspect containerid
+$ docker logs container_id
+```
+
+ # Installing a Jenkins container
+
+ ```
+ $ docker run -p 8080:8080 -v /home/user/jenkins-data:/var/jenkins_home -u user jenkins
+ ```
+
+ 
 
