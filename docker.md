@@ -163,11 +163,11 @@ $ docker push mmumshad/my-custom-app
 
 There will be different layers in our container accordingly to our commands added to the Dockerfile
 
-Layer 1 - Base ubuntu layer
-Layer 2 - Changes in apt packages
-Layer 3 - Changes in pip packages
-Layer 4 - Source code
-Layer 5 - Update Entrypoint with flask command
+- Layer 1 - Base ubuntu layer
+- Layer 2 - Changes in apt packages
+- Layer 3 - Changes in pip packages
+- Layer 4 - Source code
+- Layer 5 - Update Entrypoint with flask command
 
 
 ##### Docker history
@@ -177,3 +177,6 @@ With docker history we can see the layers we built our container and the size of
 ```
 $ docker history mumshad/single-webapp
 ```
+
+
+
