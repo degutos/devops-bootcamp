@@ -114,5 +114,66 @@ $ docker logs container_id
  $ docker run -p 8080:8080 -v /home/user/jenkins-data:/var/jenkins_home -u user jenkins
  ```
 
- 
 
+
+ # Docker Images
+
+ ### Containarizing a flask web application
+
+
+#### How to create my own image 
+
+
+1. OS - Ubuntu
+2. Update apt repo
+3. Install dependencies using apt
+4. Install python dependencies using pip
+5. Copy source code to /opt folder
+6. Run the web server using flask command
+
+
+##### Dockerfile
+
+Create your Dockerfile
+
+```
+FROM ubuntu
+
+RUN apt-get update
+RUN apt-get install python
+
+RUN pip install flask
+RUN pip install flask-mysql
+
+COPU . /opt/source-code
+
+ENTRYPOINT FLASK_APP=/opt/source-code/app.py flask run
+
+```
+
+
+##### Build docker image
+
+```
+$ docker build Dockerfile -t mmumshad/my-custom-app
+$ docker push mmumshad/my-custom-app
+```
+
+##### Docker layer
+
+There will be different layers in our container accordingly to our commands added to the Dockerfile
+
+Layer 1 - Base ubuntu layer
+Layer 2 - Changes in apt packages
+Layer 3 - Changes in pip packages
+Layer 4 - Source code
+Layer 5 - Update Entrypoint with flask command
+
+
+##### Docker history
+
+With docker history we can see the layers we built our container and the size of each layer.
+
+```
+$ docker history mumshad/single-webapp
+```
