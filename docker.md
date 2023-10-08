@@ -170,13 +170,157 @@ There will be different layers in our container accordingly to our commands adde
 - Layer 5 - Update Entrypoint with flask command
 
 
-##### Docker history
+##### Docker history command
 
 With docker history we can see the layers we built our container and the size of each layer.
 
 ```
 $ docker history mumshad/single-webapp
 ```
+
+## Docker image project - hands on
+
+
+We will be deploying an application test from https://github.com/mmumshad/simple-webapp-flask/tree/master
+
+
+### Running Flask application manually in the ubuntu container
+
+```
+$ docker run -it -p 8080:8080  ubuntu  bash
+$ apt-get update
+$ apt-get install -y python2 pip
+$ pip install flask
+$ cat > /opt/app.py
+import os
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def main():
+    return "Welcome!"
+
+@app.route('/how are you')
+def hello():
+    return 'I am good, how about you?'
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
+CTRL+C
+
+
+$  FLASK_APP=/opt/app.py flask run --host=0.0.0.0 --port=8080
+```
+
+
+Now you open your browser!
+
+```
+* Running on http://127.0.0.1:8080
+* Running on http://localhost:8080
+```
+
+# Lets dockerize our application 
+
+
+### Create a dir to build your new container
+
+```
+$ mkdir my-simple-webapp
+```
+
+```
+$ cd my-simple-webapp 
+```
+
+## Create your Dockerfile
+
+```
+$ cat > Dockerfile   
+FROM ubuntu
+
+RUN apt-get update
+RUN apt-get install -y python2 pip
+RUN pip install flask 
+
+COPY app.py /opt/app.py
+    
+ENTRYPOINT FLASK_APP=/opt/app.py flask run --host=0.0.0.0 --port=8080
+^C
+```
+
+### Create your app.py within your Project dir with your Dockerfile
+
+```
+$ cat > app.py    
+import os
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def main():
+    return "Welcome!"
+
+@app.route('/how are you')
+def hello():
+    return 'I am good, how about you?'
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
+^C
+```
+
+### Create your container and tag it 
+
+```
+$ docker build . -t degutos/my-simple-webapp
+```
+
+You will be able to see you image created
+
+```
+$ docker images                             
+REPOSITORY                    TAG         IMAGE ID       CREATED              SIZE
+degutos/my-simple-webapp      latest      d05ba7edf9b5   About a minute ago   480MB
+```
+
+
+### Running our container recently created
+
+```
+$ docker run -p 8080:8080 degutos/my-simple-webapp
+```
+
+After that we will be able to open our browser on port 8080
+
+```
+* Running on http://127.0.0.1:8080
+* Running on http://localhost:8080
+```
+
+
+### Pushing our image to docker hub
+
+
+```
+$ docker login            
+Authenticating with existing credentials...
+Login Succeeded
+```
+
+```
+$ docker push degutos/my-simple-webapp
+Using default tag: latest
+The push refers to repository [docker.io/degutos/my-simple-webapp]
+af93081ec0de: Pushed 
+fd187973b88b: Pushed 
+b93b63bf3160: Pushed 
+ca2650d3319c: Pushed 
+94360412eb96: Mounted from library/ubuntu 
+latest: digest: sha256:09a373618d2a613a9dbfcdc3db74147770a3c0b020cf803eaa1f5e2509854b04 size: 1372
+```
+
+
 
 
 
