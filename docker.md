@@ -322,5 +322,152 @@ latest: digest: sha256:09a373618d2a613a9dbfcdc3db74147770a3c0b020cf803eaa1f5e250
 
 
 
+### Another example of a Docker file
 
+This is only another example of a Dockerfile. This is not part of the project above
+
+```
+$ cat Dockerfile 
+FROM python:3.6
+
+RUN pip install flask
+
+COPY . /opt/
+
+EXPOSE 8080
+
+WORKDIR /opt
+
+ENTRYPOINT ["python", "app.py"]
+```
+
+
+###  Environment variable
+
+We sometimes want to use variables when we start a container. Some applications all coded with constant set to a value but we can use variables instead 
+
+Example:
+
+```
+color = "red" # this is a contstant 
+
+color = os.environ.get('APP_COLOR') # this is a variable
+```
+
+We can use the variable set at the container creation time, example:
+
+```
+$ docker run -e APP_COLOR=blue simple-webapp-color
+```
+
+
+We can find all the variables set to a container by running 
+
+```
+$ docker inspect container_name
+...
+       "Env": [
+                "APP_COLOR=pink",
+...
+```
+
+Lets see another example of running a container with variables
+
+```
+$ docker run -p 38282:8080 --name blue-app -e APP_COLOR=blue -d kodekloud/simple-webapp 
+3036928d540e44e14fa84164b4a49c58908a6dc20d0b658dc47c641869bc145e
+```
+
+We can confirm the variables with
+
+```
+$ docker exec -it blue-app env
+PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=3036928d540e
+TERM=xterm
+APP_COLOR=blue
+LANG=C.UTF-8
+GPG_KEY=0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
+PYTHON_VERSION=3.6.6
+PYTHON_PIP_VERSION=18.1
+HOME=/root
+```
+
+
+Creating another container running mysql and setting variable password
+
+```
+$ docker run --name mysql-db -d  -e MYSQL_ROOT_PASSWORD=db_pass123   mysql 
+f8ab82a707b27567fa24152df79957a1fd1532e0c6cb42843765433dabc791e8
+```
+
+Lets check now the variable set
+
+```
+$ docker exec -it mysql-db env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=f8ab82a707b2
+TERM=xterm
+MYSQL_ROOT_PASSWORD=db_pass123
+GOSU_VERSION=1.16
+MYSQL_MAJOR=8.0
+MYSQL_VERSION=8.0.33-1.el8
+MYSQL_SHELL_VERSION=8.0.33-1.el8
+HOME=/root
+```
+
+
+
+### Entrypoint vs Command
+
+When we build a container image we can use a variable CMD that will refer to the application which the pod will run 
+
+Example:
+
+```
+FROM UBUNTU
+
+CMD sleep 5
+```
+
+or 
+
+```
+FROM UBUNTU
+
+CMD ['sleep','5']
+```
+
+To run the container we can run the below command and we don't pass any parameter and the container will run for 5 seconds
+
+```
+docker run ubuntu-sleeper
+```
+
+To change the paramenter we will need to inform the command and time, ie.
+
+```
+docker run ubuntu-sleeper sleep 10
+```
+
+How can we not have to specify the sleep again, ie
+
+```
+docker run ubuntu-sleeper 10
+```
+
+For the above to work we will need to use ENTRYPOINT
+
+```
+FROM UBUNTU
+ENTRYPOINT ["sleep"]
+CMD ["5"]
+```
+
+
+To modify the entrypoint in runtime 
+
+```
+docker run --entrypoint sleep2.0 ubuntu-sleeper 10 
+```
 
