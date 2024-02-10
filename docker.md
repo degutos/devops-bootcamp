@@ -66,6 +66,8 @@ $ docker ps -a # shows all container running and stopped
 $ docker stop silly_sammet # stop a container
 $ docker rm silly_sammet # remove a container forever
 $ docker images # shows all images we have downloaded
+$ docker images -q # shows all images id, it doesn't show the header, it is good to use with wc -l
+$ docker images -q | wc -l # shows all images id and count how many images id we have
 $ docker rmi image_name # delete an image 
 $ docker run nginx # run and download an image
 $ docker pull image # download an image
@@ -94,6 +96,11 @@ e61157d7b44c   ubuntu         "sleep 1000"             About a minute ago   Up A
 $ docker run -p 80:8080 nginx # run a container and map a port 80 on the worker node to port 8080 on the container
 ```
 
+# Run container with a blue image tag and map a port
+
+```
+$ docker run -p 38282:8080 kodekloud/simple-webapp:blue
+```
 
 # Run container and map volume
 
@@ -470,4 +477,167 @@ To modify the entrypoint in runtime
 ```
 docker run --entrypoint sleep2.0 ubuntu-sleeper 10 
 ```
+
+### How to run a container with a volume mounted
+
+```
+$ docker run -v /opt/data:/var/lib/mysql -d --name mysql-db -e MYSQL_ROOT_PASSWORD=db_pass123 mysql
+19240d2384cc1d083047defedabfc5504e703391d1dd7b483c50bb5ce747976a
+```
+
+
+Now we can access the container mysql database and check the content
+
+```
+$ docker exec mysql-db mysql -pdb_pass123 -e 'use foo; select * from myTable'
+```
+
+
+
+
+
+## Docker Engine
+
+
+
+- Docker CLI
+- REST API
+- Docker Daemon
+
+
+#### To access a docker remotely through docker CLI
+
+```
+$ docker -H=remote_docker_engine:2375 ...
+```
+
+OR
+
+```
+$ docker -H=10.123.2.1:2375 run nginx 
+```
+
+- Containers are namespaces in the OS separating process in the system.
+
+- We can have PID:1 in the host and another PID:1 within the conatiner.
+- This PID:1 has another PID within the OS i.e. PID:5
+
+```
+PID:5 in the host == PID:1 in the container namespace, visiable only within the container
+```
+
+### CPU and Memory
+
+- By default a container can use all the resources in the host.
+
+- There is a way to restrict resources the container can use
+
+```
+$ docker run --cpus=.5 ubuntu
+$ docker run --memory=100m ubuntu
+```
+
+
+## File system
+
+- /var/lib/docker 
+- /var/lib/docker/volumes
+- /var/lib/docker/images
+
+
+```
+$ docker volume create data_volume
+```
+
+The above command will create:
+
+- /var/lib/docker/volumes/data_volume
+
+#### Mounting a volume in the container
+
+```
+$ docker run -v data_volume:/var/lib/mysql mysql 
+```
+
+- If we run -v data_volume2:xxx and data_volume2 doesn't exist the docker engine will create this volume for us.
+
+#### Using mount parameter instead of -v
+
+```
+$ docker run \
+  --mount type=bind,source=/data/mysql,target=/var/lib/mysql mysql
+```
+
+
+#### lets create another container with mount point volume
+
+```
+$ mkdir -p /opt/data
+
+$ docker run -d --name mysql-db -e MYSQL_ROOT_PASSWORD=db_pass123 --mount type=bind,source=/opt/data,target=/var/lib/mysql mysql 
+11a3f71dc012aa1af19c26875f5c6dfdfc2b161f532f6f24b3494d7aa3e951f2
+```
+
+
+## Docker Network
+
+- By default docker create a default bridge network on 172.17.0.1 subnet.
+- To create another subnet in diffeent range we run
+
+```
+$ docker network create \
+  --driver bridge \
+  --subnet 182.18.0.0/16 \
+  custom-isolated-network-andre
+```
+
+#### To list all network created
+
+```
+$ docker network ls
+```
+
+#### How to setup a container and attach it to network none
+
+```
+$ docker run -d --name alpine-2 --network none alpine 
+c666e505f8699a73afd5974c90f0ed7c1d59fc280fbdf97a541f7dc03d65d2a2
+```
+
+
+#### Create a subnet bridge network 182.18.0.1/24 with gateway 182.18.0.1 named wp-mysql-network
+
+```
+$ docker network create --driver bridge --subnet 182.18.0.1/24 --gateway 182.18.0.1 wp-mysql-network
+118a051b5c6913250ecd604fc4106f0a26855df4288674ef878787df75936747
+$ 
+$ docker network ls
+NETWORK ID     NAME               DRIVER    SCOPE
+5a6507fe6d1a   bridge             bridge    local
+e1bd4eeb89ea   host               host      local
+cc017d20d8c9   none               null      local
+118a051b5c69   wp-mysql-network   bridge    local
+```
+
+```
+$ docker inspect 118a | egrep -i 'subnet|gateway'
+                    "Subnet": "182.18.0.1/24",
+                    "Gateway": "182.18.0.1"
+```
+
+
+
+#### Run a container on specific network
+
+```
+$ docker run -d --name mysql-db -e MYSQL_ROOT_PASSWORD=db_pass123 --network wp-mysql-network mysql:5.6
+```
+
+
+#### Run a container exposing a port on the host and set 2 variables and use special subnet created
+
+```
+$ docker run -d -p 38080:8080 -e DB_Host=mysql-db -e DB_Password=db_pass123 --network wp-mysql-network --name webapp kodekloud/simple-webapp-mysql 
+```
+
 
