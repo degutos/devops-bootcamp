@@ -1091,5 +1091,236 @@ $ kubectl run nginx --image=nginx
 
 
 
+## Services
+
+- Services helps kubernetes to communicate backend and frontend pods and also external communication 
+- If our node has IP 192.168.1.2 and our laptop has IP 102.168.1.10 and we need to reach a pod within our worker node with subnet 10.244.0.0 clearly we can not reach the pod. To fix this we will need a service created in our cluster to allow us to access the pod. This is called NodePort service.
+- Types of Services:
+- NodePort
+- ClusterIP
+- LoadBalancer
+
+This is the default kubernetes service of type ClusterIP:
+
+```
+controlplane ~ ➜  kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   10m
+
+controlplane ~ ➜  kubectl describe svc kubernetes
+Name:              kubernetes
+Namespace:         default
+Labels:            component=apiserver
+                   provider=kubernetes
+Annotations:       <none>
+Selector:          <none>
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                10.43.0.1
+IPs:               10.43.0.1
+Port:              https  443/TCP
+TargetPort:        6443/TCP
+Endpoints:         192.37.94.3:6443
+Session Affinity:  None
+Events:            <none>
+```
+
+
+### Service - NodePort
+
+- TargetPort: this is the pod port which your application is running on 
+- Port: this is the service port 
+- NodePort: this is the port of the node where external ppl can reach that port and node to access the content shared from the pod. RANGE from 30000 to 32767
+- We need to link the service to the pods using labels. Pods running usually has labels and we need refer that label when we create a new service using selector
+- If we have many pods with same label (same application running) the service will redirect traffic to pods randomly 
+- When pods are distribuited across different nodes the kubernetes will take care of having the service working through all the pods and will use the same port on each node part of that cluster
+- 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  type: NodePort
+  ports:
+    - targetPort: 80
+      port: 80
+      nodePort: 30008
+  selector:
+    app: myapp
+    type: front-end
+```
+
+
+### Creating a deployment, service and port-forward
+
+#### deployment
+
+```
+ ✗ cat deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    tier: frontend
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  replicas: 6
+  template:
+    metadata:
+      name: nginx-2
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+```
+
+#### Service
+
+```
+✗ cat service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-service
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30004
+  selector:
+    app: myapp
+```
+
+#### Port-forward
+
+```
+$ kubectl port-forward svc/myapp-service 8080:80
+```
+
+Now we can access the pod through the browser from our localhost. Open your browser and type  http://localhost:8080/
+
+
+### Services - ClusterIP
+
+- Front-end
+- Back-end
+- redis
+- for all these pods communicate each other we may use service to allow these communication.
+- Pods have IPs and we can not rely on Ips address to communicate between services/pods. 
+- We will need kubernetes services to communicate between them 
+- Services can also work as load-balancer grouping several pods together
+- We can use services name to reach the set of pods 
+  
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-end
+spec: 
+  type: ClusterIP
+  ports:
+    - targetPort: 80
+      port: 80
+  selector:
+    app: myapp
+    type: back-end
+
+```
+
+```
+$ kubectl create -f service.yaml
+```
+
+
+### Services - LoadBalancer
+
+- We have another type of service called LoadBalancer
+- Steps: create deployment, services ClusterIP and services LoadBalancer
+- As we know service NodePort allow kubernetes share our work node to external users on a specific port
+- With service NodePort user can access the application through a address like http://192.168.56.70:30035 and http://192.168.56.71:30035 in case our cluster has 02 worker nodes. 
+- Users don't want to reach two different worker node IP and port, they want a single endpoint to reach out, which is service LoadBalancer
+- Service loadbalancer allows external communication. Useful when you have several Nodes and we want to allow external user to access our services.
+- LoadBalancer only works with supported platform like AWS, Azure and Google Cloud
+- LoadBalancer doesn't work on unsupported environment like virtualbox and others
+
+
+
+## Microservices Architecture
+
+- Building an application 
+- Votting App
+- Application to user to choose between dog and cat and show the result
+- Modules: 
+  - voting-app (python)
+  - result-app (NodeJS)
+  - in-memory DB (redis)
+  - db (portgresql)
+  - worker (.Net)
+
+
+### Flow and workflow
+
+- voting-app (python) : Interface to vote and choose between two options, A Dog or a Cat
+- in-memmory DB (redis) : our vote will be stored to save/store our data 
+- worker (.Net) : this worker process our data, it takes the new vote and store it in our DB
+- DB (Postgresql) store our votes. Simple database with 2 filds (cat and dogs) 
+- result-app (NodeJs) this module will display our results voting
+- We should use parameter --link followed by the container_name:hostname, that is why we should always name our container with a name
+- Kubernetes create a new host entry in /etc/hosts of the container on voting-app pointing to the link we created, like:
+- 172.17.0.2  redis 89cd8eb
+- Unfortunately the concept to --links is deprecated and will be removed from next kube version. Although we need to understand the concept in order to progress further. 
+
+#### Docker run --links
+
+- We will need to link the application pods like voting-app to connect to redis database
+- We will also need to link our result-app to our db running postgres
+
+```
+$ docker run -d --name=redis redis
+
+$ docker run -d --name=db postgres:9.4
+
+$ docker run -d --name=vote -p 5000:80 --link redis:redis voting-app
+
+$ docker run -d --name=result -p 5001:80 --link db:db result-app
+
+$ docker run -d --name=worker  --link db:db --link redis:redis worker
+```
+
+#### Pods
+
+- Clearly we won't work with container and docker
+- We will work with pods, will deploy a pod with a container encapsuled 
+- Enable connectivity
+- We will enable external access to front-end voting-app and result-app on port 80
+- voting-app will communicate with redis on port 6379
+- worker will communicate with redis on port 6379 and db on port 5432 but no user should be able to access worker, we won't need any service exposed because only worker will access redis and db
+- result-app communicate with db on port 5432
+- We won't rely on IPs, since ips can change. We will need to expose services.
+  
+- We will need a redis Service called redis type ClusterIP
+- We will need a db Service called db service type ClusterIP
+- We will need services exposing voting-app and result-app as NodePort 
+
+Images:
+
+- voting-app: kodekloud/examplevotingapp_vote:v1
+- redis: redis
+- worker: kodekloud/examplevotingapp_worker:v1
+- db: postgresql 
+- result-app: kodekloud/examplevotingapp_result:v1
+
+
 
 
