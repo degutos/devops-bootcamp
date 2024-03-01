@@ -1375,6 +1375,8 @@ kubectl apply -f .
 ```
 
 - reference url: https://kodekloud.com/community/t/image-kodekloud-examplevotingapp-worker-v1/231430/2
+- reference 2 : https://github.com/kodekloudhub/example-voting-app-kubernetes
+  
   
 
 
