@@ -1323,6 +1323,262 @@ Images:
 
 
 
+### Creating YAML files four our project
+
+
+
+#### voting-app-deployment and service
+
+
+- Lets create our voting-app-deployment deployment
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voting-app-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: voting-app-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: voting-app-pod
+      labels:
+        name: voting-app-pod
+        app: demo-voting-app
+    spec:
+      containers:
+        - name: voting-app
+          image: dockersamples/examplevotingapp_vote:latest
+          ports:
+            - containerPort: 80
+```
+
+
+- Lets create our Service voting-app-service
+
+
+
+```
+apiVersion: v1
+kind: Service
+metada:
+  name: voting-service
+  labels:
+    name: voting-service
+    app: demo-voting-app
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    name: voting-app-pod
+    app: demo-voting-app
+```
+
+
+### result-app-deployment and service
+
+- Lets create our result-app-deployment
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: result-app-deployment
+  app: demo-voting-app
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      name: result-app-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: result-app-pod
+      labels: 
+        name: result-app-pod
+        app: demo-voting-app
+    spec:
+      containers:
+        - name: result-app
+          image: dockersamples/examplevotingapp_result
+          ports:
+            - containerPort: 80
+```
+
+
+- Lets create our Service result-app-service
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: result-service
+  Labels:
+    name: result-service
+    app: demo-voting-app
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80
+    selector:
+      name: result-app-pod
+      app: demo-voting-app
+```
+
+
+
+### woker-app-deployment
+
+
+- Lets create our worker-app-deployment. This won't have any service since we are not going to expose anything here, it is going reach other services instead
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-app-deployment
+  app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: worker-app-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: worker-app-pod
+      labels:
+        name: worker-app-pod
+        app: demo-voting-app
+    spec:
+      containers:
+        - name: worker-app
+          image: dockersamples/examplevotingapp_worker
+```
+
+
+
+### redis-deployment and service
+
+
+- Lets create our redis-deployment 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: redis-pod
+      labels:
+        name: redis-pod
+        app: demo-voting-app
+    spec:
+      containers:
+        - name: redis
+          image: redis
+          ports:
+            - containerPort: 6379
+```
+
+
+- Lets create our redis-service
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    name: redis-service
+    app: demo-voting-app
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector: 
+    name: redis-pod
+    app: demo-voting-app
+```
+
+
+
+### postgres-deployment and service
+
+- Lets create our postgres-deployment
+
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgres-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: postgres-pod
+      labels:
+        name: postgres-pod
+        app: demo-voting-app
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:9.4
+          env:
+          - name: POSTGRES_USER
+            value: postgres
+          - name: POSTGRES_PASSWORD
+            value: postgres
+          - name: POSTGRES_HOST_AUTH_METHOD
+            value: trust
+          ports:
+            - contianerPort: 5432
+```
+
+- Lets create our service postgres
+    
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  labels:
+    name: db-service
+    app: demo-voting-app
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector: 
+    name: postgres-pod
+    app: demo-voting-app
+```
+
+
 
 
 
