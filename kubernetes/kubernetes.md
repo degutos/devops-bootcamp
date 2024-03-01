@@ -1326,6 +1326,57 @@ Images:
 ### Creating YAML files four our project
 
 
+- We can git clone this project from the repo 
+```
+git clone https://github.com/mmumshad/example-voting-app-kubernetes-v2.git
+```
+
+- We will need to modify one file postgres-dployment.yml
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+  labels:
+    app: demo-voting-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: postgres-pod
+      app: demo-voting-app
+  template:
+    metadata:
+      name: postgres-pod
+      labels:
+        name: postgres-pod
+        app: demo-voting-app
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:9.4
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: trust
+        ports:
+        - containerPort: 5432
+```
+
+
+and then we run
+
+```
+kubectl apply -f .
+```
+
+- reference url: https://kodekloud.com/community/t/image-kodekloud-examplevotingapp-worker-v1/231430/2
+  
+
 
 #### voting-app-deployment and service
 
@@ -1581,6 +1632,10 @@ spec:
 
 
 
+### Access through our browser 
 
-
+```
+$ kubectl port-forward service/voting-service 8080:80
+$ kubectl port-forward service/result-service 8090:80
+```
 
