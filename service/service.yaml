@@ -10,3 +10,8 @@ spec:
       nodePort: 30004
   selector:
     app: myapp
+
+
+
+
+
