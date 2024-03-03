@@ -433,10 +433,385 @@ host_key_checking = False
 
 ```
 
+ 
+
+## Ansible modules
+
+- System modules: user, group, hostname, iptables, lvg, lvol, mount, systemd
+- Command modules: command, script, shell, expect
+- File modules: acl, archive, copy, find, replace
+- Database modules: mongdb, msql, postgresql, mysql 
+- Cloud modules: amazon, azure, DigitalOcean, Openstack, docker, SL, vmware
+- Windows modules: win_copy, win_command, win_file
+- More...
 
 
 
-LAB:
+### Command module
+
+- Lets see an example of command module
+
+
+```
+-
+  name: Play1
+  hosts: localhost
+  tasks: 
+    - name: Execute command date
+      command: date
+
+    - name: Display resolv.conf contents
+      command: cat /etc/resolv.conf 
+
+    - name:  Display resolv.conf contents changing directory
+      command: cat resolv.conf chdir=/etc
+
+    - name: Display resolv.conf contents
+      command: mkdir /folder creates=folder
+
+    - name: Copy file from source to destination
+      copy: src=/source_file dest=/destination
+```
+
+
+
+### Script module
+
+- Script module run a local script on a remote node after transfering it
+
+```
+- 
+  name: Play2
+  hosts: localhost
+  tasks:
+    - name: Run script on a remote server
+      script: /some/local/script.sh -arg1 -arg2
+```
+
+### Service modules
+
+- Service module is to manage services on a node like start, stop, restart
+
+```
+- 
+  name: Start Services in order
+  hosts: localhost
+  tasks: 
+    - name: Start database service
+      service: name=postgresql state=started
+```
+
+Another way of right the same thing
+
+```
+...
+tasks:
+  - name: Start database service
+    service:
+      name: postgresql
+      state: started
+```
+
+- Lets now add 02 more tasks to the first example above:
+
+
+```
+- 
+  name: Start Services in order
+  hosts: localhost
+  tasks: 
+    - name: Start database service
+      service: name=postgresql state=started
+    - name: Start httpd service
+      service: name=httpd state=started
+    - name: Start nginx service
+      service: name=nginx state=started
+```
+
+
+- Keep in mind that we are instructing ansible to make sure the service is `started` we are not asking ansible to start. If the service is started the ansible will do nothing since the service is already started.
+
+
+### Lineinfile module
+
+
+```
+- 
+  name: Add DNS server to resolv.conf
+  hosts: localhost
+  tasks:
+    - lineinfile:
+        path: /etc/resolv.conf
+        line: 'nameserver 10.1.250.10' 
+```
+
+
+
+### Example of playbook to create a file /var/www/html/index.html and add a line "Welcome... " to it
+
+```
+[bob@student-node playbooks]$ cat playbook.yaml 
+---
+- name: 'hosts'
+  hosts: all
+  become: yes
+  tasks:
+    - name: 'Execute a script'
+      script: '/tmp/install_script.sh'    
+    - name: 'Start httpd service'
+      service:
+        name: 'httpd'
+        state: 'started'
+    - lineinfile:
+        path: /var/www/html/index.html
+        line: 'Welcome to ansible-beginning course' 
+        create: true
+
+```
+
+### Example of playbook to create a user with uid 1040 and group developer
+
+```
+[bob@student-node playbooks]$ cat playbook.yaml 
+---
+- name: 'hosts'
+  hosts: all
+  become: yes
+  tasks:
+    - name: 'Execute a script'
+      script: '/tmp/install_script.sh'
+    - name: 'Start httpd service'
+      service:
+        name: 'httpd'
+        state: 'started'
+    - name: "Update /var/www/html/index.html"
+      lineinfile:
+        path: /var/www/html/index.html
+        line: "Welcome to ansible-beginning course"
+        create: true
+    - name: Create user
+      user:
+              name: web_user
+              uid: 1040
+              group: developers
+
+```
+
+### Variables
+
+- We can also use variables to work with anisble
+
+
+
+```
+- 
+  name: Add DNS server to resolv.conf
+  hosts: localhost
+  vars:
+    dns_server: 10.1.250.10
+  tasks:
+    - lineinfile:
+        path: /etc/resolv.conf
+        line: 'nameserver {{ dns_server }}'
+
+
+- We can also have a separated file to store our variables
+
+variables
+```
+variable1: value1
+variable2: value2
+```
+
+
+- Lets see another example with many variables in the playbook:
+
+
+```
+- 
+  name: Set firewall config
+  hosts: web
+  tasks:
+    - firewalld:
+      service: htpps
+      permanent: true
+      state: enabled
+
+    - firewalld:
+      port: '{{ httpd_port }}'/tcp
+      permanent: true
+      state: disabled
+
+    - firewalld:
+      port: '{{ snmp_port }}'/udp
+      permanent: true
+      state: disabled 
+
+    - firewalld:
+      source: '{{ inter_ip_range }}'/24
+      zone: internal
+      state: enabled
+```
+
+
+- lets now create our web.yml file
+
+```
+http_port: 8081
+snmp_port: 161-162
+inter_ip_range: 192.0.2.0
+```
+
+
+
+### Example using variables
+
+```
+[bob@student-node playbooks]$ cat playbook.yaml 
+---
+- name: 'Add nameserver in resolv.conf file on localhost'
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: 'Add nameserver in resolv.conf file'
+      lineinfile:
+        path: /tmp/resolv.conf
+        line: 'nameserver {{ nameserver_ip }}' 
+```
+
+- Variables in this example are added to inventory file:
+
+```
+[bob@student-node playbooks]$ cat inventory 
+localhost ansible_connection=local nameserver_ip=8.8.8.8 snmp_port=160-161
+node01 ansible_host=node01 ansible_ssh_pass=caleston123
+node02 ansible_host=node02 ansible_ssh_pass=caleston123
+[web_nodes]
+node01
+node02
+
+[all:vars]
+app_list=['vim', 'sqlite', 'jq']
+user_details={'username': 'admin', 'password': 'secret_pass', 'email': 'admin@example.com'}
+```
+
+- Another example below, notice that the variable nameserver_ip is set in the above file inventory:
+
+```
+[bob@student-node playbooks]$ cat playbook.yaml 
+---
+- name: 'Add nameserver in resolv.conf file on localhost'
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: 'Add nameserver in resolv.conf file'
+      lineinfile:
+        path: /tmp/resolv.conf
+        line: 'nameserver {{  nameserver_ip  }}'
+    - name: 'Disable SNMP Port'
+      firewalld:
+        port: '{{ snmp_port }}' 
+        permanent: true
+        state: disabled 
+```
+
+
+  
+- Anather example:
+
+```
+[bob@student-node playbooks]$ cat playbook.yaml 
+---
+- hosts: localhost
+  vars:
+    car_model: 'BMW M3'
+    country_name: USA
+    title: 'Systems Engineer' 
+
+  tasks:
+    - command: 'echo "My car is {{ car_model }}"'
+    - command: 'echo "I live in {{ country_name }}"'
+    - command: 'echo "I work as a {{ title }}"'
+  ```
+
+
+  - Lets see another exmaple with several items to be installed:
+
+  ```
+  [bob@student-node playbooks]$ cat app_install.yaml 
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install applications
+      yum:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ app_list }}" 
+  ```
+
+  - Lets see now our variables file 
+
+  ```
+  [bob@student-node playbooks]$ cat inventory 
+localhost ansible_connection=local nameserver_ip=8.8.8.8 snmp_port=160-161
+node01 ansible_host=node01 ansible_ssh_pass=caleston123
+node02 ansible_host=node02 ansible_ssh_pass=caleston123
+[web_nodes]
+node01
+node02
+
+[all:vars]
+app_list=['vim', 'sqlite', 'jq']
+user_details={'username': 'admin', 'password': 'secret_pass', 'email': 'admin@example.com'}
+```
+
+- One more example to create user with variables:
+
+```
+[bob@student-node playbooks]$ cat user_setup.yaml 
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Set up user
+      user:
+        name: "{{ user_details.username }}"
+        password: "{{ user_details.password }}"
+        comment: "{{ user_details.email }}" 
+        state: present
+```
+
+- Lets check now the variables file:
+
+```
+[bob@student-node playbooks]$ cat inventory 
+localhost ansible_connection=local nameserver_ip=8.8.8.8 snmp_port=160-161
+node01 ansible_host=node01 ansible_ssh_pass=caleston123
+node02 ansible_host=node02 ansible_ssh_pass=caleston123
+[web_nodes]
+node01
+node02
+
+[all:vars]
+app_list=['vim', 'sqlite', 'jq']
+user_details={'username': 'admin', 'password': 'secret_pass', 'email': 'admin@example.com'}
+```
+
+
+
+
+
+
+
+
+
+
+LAB
+
+In this lab exercise you will use below hosts. Please note down some details about these hosts as given below :
+
 
 student-node :- This host will act as an Ansible master node where you will create playbooks, inventory, roles etc and you will be running your playbooks from this host itself.
 
@@ -456,8 +831,6 @@ Password: caleston123
 
 
 Note: Please type exit or logout on the terminal or press CTRL + d to log out from a specific node.
-
-
 
 
 
