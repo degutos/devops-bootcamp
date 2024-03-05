@@ -799,10 +799,242 @@ app_list=['vim', 'sqlite', 'jq']
 user_details={'username': 'admin', 'password': 'secret_pass', 'email': 'admin@example.com'}
 ```
 
+### Conditions - "when"
+
+- We can use conditions to check something in the playbook
+
+```
+---
+- name: Install nginx
+  hosts: all
+  tasks:
+    - name: Install nginx on debian
+      apt:
+        name: nginx
+        state: present
+      when: ansible_os_family == "Debian" and
+            ansible_distribution_version == "16.04"
+
+    - name: Install nginx on RedHat
+      yum:
+        name: nginx
+        state: present
+      when: ansible_os_family == "RedHat" or
+            ansible_os_family == "SUSE"
+```
+
+#### Conditions in loops
+
+```
+---
+- name: Install software
+  hosts: all
+  vars:
+    packages:
+    - name: nginx
+      required: True
+    - name: mysql
+      required: True
+    - name: apache
+      required: False
+  tasks:
+  - name: install "{{ item.name }}" on debian
+    apt:
+      name: "{{ item.name }}"
+      state: present
+    when: item.required == True
+    loops: "{{ packages }}"
+```
+
+#### Conditions and Register
+
+- We can use the directive 'Register' on a specific task to store some output as a variable.
+
+```
+---
+- name: check status of a service
+  hosts: localhost
+  tasks:
+    - command: service httpd status
+      register: result
+
+    - mail:
+        to: admin@company.com
+        subject: Service alert
+        body: httpd service is down
+        when: result.output.find('down') != -1
+```
 
 
 
 
 
+- Lets see another example with conditions and variables
+
+```
+[bob@student-node playbooks]$ cat age.yaml 
+---
+- name: 'Am I an Adult or a Child?'
+  hosts: localhost
+  vars:
+    age: 25
+  tasks:
+    - name: I am a Child
+      command: 'echo "I am a Child"'
+      when: '{{ age }} < 18'
+      
+    - name: I am an Adult
+      command: 'echo "I am an Adult"'
+      when: '{{ age }} >= 18'
+```
+
+- We can also write slightly different 
+
+```
+[bob@student-node playbooks]$ cat age.yaml 
+---
+- name: 'Am I an Adult or a Child?'
+  hosts: localhost
+  vars:
+    age: 25
+  tasks:
+    - name: I am a Child
+      command: 'echo "I am a Child"'
+      when: 'age < 18' 
+      
+    - name: I am an Adult
+      command: 'echo "I am an Adult"'
+      when: 'age >= 18' 
+```
+    
+
+
+- Another interesting way to use register directive assign to a variable command_output and use find function to check if the file has the nameserver already added into the file.
+
+```
+[bob@student-node playbooks]$ cat nameserver.yaml 
+---
+- name: 'Add name server entry if not already entered'
+  hosts: localhost
+  become: yes
+  tasks:
+
+    - shell: 'cat /etc/resolv.conf'
+      register: command_output
+    - shell: 'echo "nameserver 10.0.250.10" >> /etc/resolv.conf'
+      when: 'command_output.stdout.find("10.0.250.10") == -1'
+```
+
+
+
+### Loops 
+
+```
+---
+ - name: create users
+   hosts: localhost
+   tasks:
+     - user: name='{{ item }}'  state=present
+       loop: 
+         - joe
+         - george
+         - ravi
+         - mani
+         - kiran
+         - jazlan
+         - eman 
+         - mike
+```
+
+- What if we have two variables in the loop
+
+
+```
+---
+ - name: create users
+   hosts: localhost
+   tasks:
+     - user: name='{{ item.name }}'  uid='{{ item.uid }}'  state=present
+       loop: 
+         - name: joe
+           uid: 1010
+         - name: george
+           uid: 1011
+         - name: ravi
+           uid: 1012
+         - name: kiran
+           uid: 1013
+```
+
+- Another way of doing the same but this time is an old way, maybe we will find old ansible playbook writen with the term `with_items` 
+
+```
+---
+ - name: create users
+   hosts: localhost
+   tasks:
+     - user: name='{{ item }}'  state=present
+       with_items:
+         - joe
+         - george
+         - ravi
+         - mani
+         - kiran
+         - jazlan
+         - eman 
+         - mike
+```
+
+- The funy thing is we don't have only with_items variable. We can also use many more with_* for example:
+
+```
+with_items
+with_file
+with_url
+with_mongodb
+with_dict
+with_env
+with_filetree
+with_inventory_hostnames
+with_password
+... many more
+```
+
+- Another example using loops and variables
+
+```
+---
+-  name: 'Print list of fruits'
+   hosts: localhost
+   vars:
+     fruits:
+       - Apple
+       - Banana
+       - Grapes
+       - Orange
+   tasks:
+     - command: 'echo "{{ item }}"'
+       with_items: '{{ fruits }}'
+```
+
+- One more example:
+
+```
+[bob@student-node playbooks]$ cat packages.yml 
+---
+- name: 'Install required packages'
+  hosts: localhost
+  become: yes
+  vars:
+    packages:
+      - httpd
+      - make
+      - vim
+  tasks:
+    - yum:
+        name: '{{ item }}'
+        state: present
+      with_items: '{{ packages }}' 
+```
 
 
