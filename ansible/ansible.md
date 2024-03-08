@@ -613,11 +613,11 @@ tasks:
     - lineinfile:
         path: /etc/resolv.conf
         line: 'nameserver {{ dns_server }}'
-
+```
 
 - We can also have a separated file to store our variables
 
-variables
+- variables
 ```
 variable1: value1
 variable2: value2
@@ -1036,5 +1036,102 @@ with_password
         state: present
       with_items: '{{ packages }}' 
 ```
+
+
+## Roles 
+
+- Roles are a better code, organize and share your playbooks 
+- It creates default folders to organize your playbooks in part separated in each folder.
+- We can have several kind of roles like mysql, nginx, postgres, etc. There will be lots of tasks to turn a server in one of those roles like mysql for example.
+- Installing a server like mysql is a common task between different people. Instead of have everyone who needs a mysql server ready writing their own code we can use a role mysql which is basically a pre wrote playbook that other people or company coded already and why not reutilize it.
+- Our playbook can simply call for a role, thats it, once our playbook call a role this role will be stored somewhere in our machine to be used anytime. You could have several different teams in your organization that can use those roles stored in a shared place.
+- We could have several different default folders for this roles like:
+  - tasks
+  - vars
+  - defaults
+  - handlers
+  - templates
+- We can share or get a existing playbook in ansible galaxy website. There will be roles for any kind of tasks you may need.
+- Have a look at the roles in Ansible Galaxy.
+
+
+- We can create the default folders and start our project from scratch 
+
+```
+$ ansible-galaxy init mysql 
+```
+
+This will create these folders and file:
+- README.md
+- templates
+- tasks
+- handlers
+- vars
+- defaults
+- meta
+
+- Lets see our playbook 
+
+```
+---
+ - name: Install and configure Mysql 
+   hosts: db-server
+   roles:
+     - mysql 
+```
+
+- Easy way of setup your folders
+```
+- my-playbook
+  - playbook.yml 
+  - roles
+    - mysql 
+      - template
+      - tasks
+      - handlers
+      - vars
+      - defaults
+      - meta
+```
+
+- We can find a role in ansible galaxy UI page or use CLI
+
+```
+$ ansible-galaxy search mysql 
+```
+
+- To use a role
+
+```
+$ ansible-galaxy install geerlingguy.mysql 
+```
+
+- To view all roles installed 
+
+```
+$ ansible-galaxy list
+```
+
+- Check ansible-config 
+
+
+```
+$ ansible-config dump | grep ROLE
+```
+
+- We can also install a role in a current directory, example:
+
+```
+$ ansible-galaxy install geerlingguy.mysql -p ./roles
+```
+
+
+
+
+
+
+
+
+
 
 
