@@ -640,7 +640,7 @@ $ terraform apply -var-file variables.tfvars
 
 
 
-### Variables to create an AWS resource
+#### Variables to create an AWS resource
 
 variables.tf
 ```
@@ -663,4 +663,212 @@ resource "aws_instance" "webserver" {
 ```
 
 
+
+#### Resource attributes - Interpolation sequence - having a block depending on other block resource
+
+
+```
+resource "local_file" "pet" {
+  filename = var.filename
+  content = "My favorite pet is ${random_pet.my-pet.id}"
+}
+
+resource "random_pet" "my-pet" {
+  prefix = var.prefix
+  separator = var.separator
+  length = var.length
+}
+```
+
+Example:
+
+```
+resource "time_static" "time_update" {
+}
+
+resource "local_file" "time" {
+    filename = "/root/time.txt"
+    content = "Time stamp of this file is ${time_static.time_update.id}"
+}
+```
+
+```
+❯ cat /root/time.txt 
+Time stamp of this file is 2024-03-09T16:24:31Z
+```
+
+#### Explicitly dependency 
+
+```
+resource "local_file" "whale" {
+  filename = "/root/whale"
+  content = "whale"
+  depends_on = [
+    local_file.krill
+  ]
+}
+
+resource "local_file" "krill" {
+  filename = "/root/krill"
+  content = "krill"
+}
+```
+
+
+
+
+#### Terraform show
+
+```
+❯ terraform show
+# local_file.time:
+resource "local_file" "time" {
+    content              = "Time stamp of this file is 2024-03-09T16:24:31Z"
+    content_base64sha256 = "VwdFKZLAVneRDfsGC3HdQwHSeh/DFYA1eszgvmUDgpw="
+    content_base64sha512 = "+k2oL0ulqv4FFsHaKEc2GJEQ7XlEohlrwt8KkZ0Zl9IXksbyOLqHl8exXooao7+uLyelw7bmky1MDQ79+dolLA=="
+    content_md5          = "27d0318efb0d86b11b34b5bd72f53b9e"
+    content_sha1         = "c5e019435bbd74ce01fab15723d99bad5e8bff49"
+    content_sha256       = "5707452992c05677910dfb060b71dd4301d27a1fc31580357acce0be6503829c"
+    content_sha512       = "fa4da82f4ba5aafe0516c1da284736189110ed7944a2196bc2df0a919d1997d21792c6f238ba8797c7b15e8a1aa3bfae2f27a5c3b6e6932d4c0d0efdf9da252c"
+    directory_permission = "0777"
+    file_permission      = "0777"
+    filename             = "/root/time.txt"
+    id                   = "c5e019435bbd74ce01fab15723d99bad5e8bff49"
+}
+
+# time_static.time_update:
+resource "time_static" "time_update" {
+    day     = 9
+    hour    = 16
+    id      = "2024-03-09T16:24:31Z"
+    minute  = 24
+    month   = 3
+    rfc3339 = "2024-03-09T16:24:31Z"
+    second  = 31
+    unix    = 1710001471
+    year    = 2024
+}
+```
+
+
+- Lets see another example using the provider "tls_private_key" 
+
+
+```
+resource "tls_private_key" "pvtkey" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+```
+
+
+- The tls_private_key generates a secure private key and encodes it as PEM and it lives only on terraform state, we can see it with terraform show command:
+
+
+```
+❯ terraform show
+# tls_private_key.pvtkey:
+resource "tls_private_key" "pvtkey" {
+    algorithm                     = "RSA"
+    ecdsa_curve                   = "P224"
+    id                            = "78503bcbf6a55bb3162fdfa63f0c97bb901d8d1c"
+    private_key_openssh           = (sensitive value)
+    private_key_pem               = (sensitive value)
+    private_key_pem_pkcs8         = (sensitive value)
+    public_key_fingerprint_md5    = "9e:4a:94:ec:d3:21:86:e1:78:45:f3:97:b2:e8:df:2e"
+    public_key_fingerprint_sha256 = "SHA256:jUl5LeusFdgANJLY+qyGIZ737E8pCyS+W5TLdDT9gws"
+    public_key_openssh            = <<-EOT
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCiCZwx0lqa77HkRLCSUouiCvLesLuWdQV+DrwhYZ0PrqvDfiyzzgVlWfHGyMpYiGoQPNLE++CqNbo2bWlPlyGTl7DTrwHFNroL1e+4bHg+IThxhU1rkC5gev7RK6zRbhYCWuehdpE97+eNyi1grBr5RQMEmGcTgfERGiNSp5or8UTlifMtLpqf4o7ZrjP5oXMvBaOSe8C6XJcKDaasQNl5zXo5XByUmB0spATEYE/BHBEyNjuL7mEVCiSPLsvO1zL4QAHJMxI8660aeDEQMQeA5H05DItEpD3x0l760zCZ+CgLQosH0HS3B6A7mifnRV7Po2CyR91R6kYu5Wo6wLLQP/x+5wgm9l9v9wP/l5iyfTyWXayvxlnbz/1h3CJqke/ZMjgfAkOrU0gPVzSoc2/KleCPGC5FV0EynPdtEJloe4zD8CXs7y3xPz/feiP8jCa98HoMgLY5Z8xk5EPqQc/qx1htPGili153exMF3ljDPFAyJvI0rbd3KkO1YGavQrhOZ33vpm3ml312n4xbUbJOeUDnZW5JnNcUrophVPagvEarLZCk1i2+rD3aeLFnIec4w5yS1At5xz7xTAIWLSaKkf3ClHBykAUdYdJAfmOEQZVJbHyZ+GbuTOgR6+HtymMIq+JKPD+C3lOspSTSd1+nYCFMmcTSp1qg1vQAgKZ3UQ==
+    EOT
+    public_key_pem                = <<-EOT
+        -----BEGIN PUBLIC KEY-----
+        MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAogmcMdJamu+x5ESwklKL
+        ogry3rC7lnUFfg68IWGdD66rw34ss84FZVnxxsjKWIhqEDzSxPvgqjW6Nm1pT5ch
+        k5ew068BxTa6C9XvuGx4PiE4cYVNa5AuYHr+0Sus0W4WAlrnoXaRPe/njcotYKwa
+        +UUDBJhnE4HxERojUqeaK/FE5YnzLS6an+KO2a4z+aFzLwWjknvAulyXCg2mrEDZ
+        ec16OVwclJgdLKQExGBPwRwRMjY7i+5hFQokjy7Lztcy+EAByTMSPOutGngxEDEH
+        gOR9OQyLRKQ98dJe+tMwmfgoC0KLB9B0twegO5on50Vez6NgskfdUepGLuVqOsCy
+        0D/8fucIJvZfb/cD/5eYsn08ll2sr8ZZ28/9YdwiapHv2TI4HwJDq1NID1c0qHNv
+        ypXgjxguRVdBMpz3bRCZaHuMw/Al7O8t8T8/33oj/IwmvfB6DIC2OWfMZORD6kHP
+        6sdYbTxopYted3sTBd5YwzxQMibyNK23dypDtWBmr0K4Tmd976Zt5pd9dp+MW1Gy
+        TnlA52VuSZzXFK6KYVT2oLxGqy2QpNYtvqw92nixZyHnOMOcktQLecc+8UwCFi0m
+        ipH9wpRwcpAFHWHSQH5jhEGVSWx8mfhm7kzoEevh7cpjCKviSjw/gt5TrKUk0ndf
+        p2AhTJnE0qdaoNb0AICmd1ECAwEAAQ==
+        -----END PUBLIC KEY-----
+    EOT
+    rsa_bits                      = 4096
+}
+```
+
+
+- lets now create a file with the our private key using the local_file provider:
+
+```
+resource "tls_private_key" "pvtkey" {
+  algorithm = "RSA"
+  rsa_bits = 4096
+}
+
+resource "local_file" "key_details" {
+  filename = "/root/key.txt"
+  content = tls_private_key.pvtkey.private_key_pem
+}
+```
+
+- Lets see now the content of our file:
+
+```
+❯ cat /root/key.txt 
+-----BEGIN RSA PRIVATE KEY-----
+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
+-----END RSA PRIVATE KEY-----
+```
 
