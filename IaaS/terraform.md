@@ -142,6 +142,15 @@ resource "aws_s3_bucket"  "data" {
 To use terraform local_file resource we can refer to documentation page:
 https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file
 
+```
+resource "aws_instance" "dev-server" {
+    instance_type = "t2.micro"
+    ami         = "ami-02cff456777cd"
+}
+resource "aws_s3_bucket" "falshpoint"  {
+    bucket = "project-flashpoint-paradox"
+}
+```
 
 ### Creating our first terraform script
 
@@ -871,4 +880,65 @@ l7bGwrhDE4Jv9Zcpm0bgo6Kd1NCb5RdTKQBR2L9euSaxye4ZMbj6YVGIvavcUxHd
 quit1OqMxjbSjArqg4i0P1EgP1b6P2uCfXWHVnR0a5lEniXLypmX4ynI+NY=
 -----END RSA PRIVATE KEY-----
 ```
+
+
+#### Terraform output
+
+
+
+```
+resource "local_file" "pet" {
+  filename = var.filename
+  content = "My favorite pet is ${random_pet.my-pet.id}"
+}
+
+resource "random_pet" "my-pet" {
+  prefix = var.prefix
+  separator = var.separator
+  length = var.length
+}
+
+output pet-name {
+  value = random_pet.my-pet.id
+  description = "Record value of id during random_pet resource"
+}
+```
+
+- During our terraform apply our output will show the new variable pet-name and the value 
+- We can also use terraform output
+
+```
+$ terraform output
+pet-name = Mrs.gibbon
+
+OR
+
+$ terraform output pet-name
+Mrs.gibbon
+```
+
+- We can use output variables when we want show variables to the screen or use in other scripts and Ansible
+
+
+### Terraform commands
+
+
+```
+$ terraform init
+$ terraform plan
+$ terraform apply
+$ terraform validate # to validate the .tf file
+$ terraform fmt # it formate the code for visibility like indentation 
+$ terraform show # show all resources created by terraform and its properties
+$ terraform show -json # show all resources in JSON format
+$ terraform providers # show all providers set up 
+$ terraform providers mirror /root/terraform/new_local_file # copy provider plugin to a new location 
+$ terraform output # show all TF variables 
+$ terraform refresh # update TF.state if any manual update on the infrastructure side
+$ terraform graph # generates a graph file of TF infra
+$ terraform graph | dot -Tsvg > graph.svg (need to install graphviz package)
+```
+
+
+
 
