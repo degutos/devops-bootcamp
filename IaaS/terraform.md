@@ -939,6 +939,136 @@ $ terraform graph # generates a graph file of TF infra
 $ terraform graph | dot -Tsvg > graph.svg (need to install graphviz package)
 ```
 
+### Mutable and Immutable Infrastructure 
+
+- Mutable is what you change
+- Immutable is what you don't change
+- When you change a TF script to change a file_permission from 0777 to 0700 terraform first delete the resource and then it recreates with the correct permission
+- Mutable example is when you install a nginx 1.16 on a server and then updates it to nginx 1.17 and then nginx 1.18. This is called Mutable.
+- Immutable is when provision a new VSI instead of updating your old one. Once you provision a new one the old one is deleted this is reached using variable create_before_destroy.
+- The default TF behavior is to delete the resource and then create it again with the new properties. Lets have a look at the lifecycle statement and variable create_before_destroy.
 
 
+```
+resource "local_file" "pet" {
+  filename = "/root/pets.txt"
+  content = "We love pets!"
+  file_permission = "0700"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+```
+
+- With this statement TF will create a new file and then delete the old one with previously properties
+- There will be situations we don't want to destroy the old resource at all. For this we can use the property prevent_destroy
+
+```
+resource "local_file" "pet" {
+  filename = "/root/pets.txt"
+  content = "We love pets!"
+  file_permission = "0700"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+```
+
+
+- We can also ignore changes that are made outside of terraform. Usually the TF will try to change back to the state set into the TF scripts. For example if your TF has a tag name=serverA and you manually changed manually to name=serverB when you run TF script it will move back to name=serverA accordingly to what is set into the TF script. When we use ignore_changes to the tag property, the TF will not move back to serverA it will keep what you changed manually and it will ignore the change you made manually. You can use `ignore_changes = all` also
+
+```
+resource "local_file" "pet" {
+  filename = "/root/pets.txt"
+  content = "We love pets!"
+  file_permission = "0700"
+
+  lifecycle {
+    ignore_changes = [
+      tags,ami
+    ]
+  }
+}
+```
+
+
+- Lets see another example using lifecycle create_before_destroy
+
+
+```
+resource "local_file" "file" {
+    filename = var.filename
+    file_permission =  var.permission
+    content = random_string.string.id
+    
+}
+
+resource "random_string" "string" {
+    length = var.length
+    keepers = {
+        length = var.length
+    }
+    lifecycle {
+        create_before_destroy = true
+    }      
+}
+```
+
+
+### Data sources 
+
+
+- We can still read a manual created file with TF script. Lets consider you created manually a file in /root/dog.txt wih content "Dogs are awesome!", lets see how TF can read this file and still use it as reference to any other object 
+
+
+```
+$ cat /root/dog.txt
+Dogs are awesome!
+```
+
+
+```
+resource "local_file" "pet" {
+  filename = "/root/pets.txt"
+  content = data.local_file.dog.content
+}
+
+data "local_file" "dog" {
+  filename = "/root/dog.txt"
+}
+```
+
+- For more examples look for data sources TF documentation 
+
+- Lets see another example using data source and reading a file from OS:
+
+```
+output "os-version" {
+  value = data.local_file.os.content
+}
+data "local_file" "os" {
+  filename = "/etc/os-release"
+}
+```
+
+- Another examples:
+
+```
+data "aws_s3_bucket" "selected" {
+  bucket = "bucket.test.com"
+}
+```
+
+```
+data "aws_ebs_volume" "gp2_volume" {
+  most_recent = true
+
+  filter {
+    name   = "volume-type"
+    values = ["gp2"]
+  }
+}
+```
 
