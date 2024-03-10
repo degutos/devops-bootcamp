@@ -94,7 +94,7 @@ resource "aws_instance" "webserver" {
   ami = "ami-0c2f25c1f66"
   instance_type = "t2.micro"
 }
-
+```
 - Resource is a object that terraform manages, it could be resources like  a file, virtual machine, ec2, bucket, roles, policies, compute engine, database, etc.
 
 Syntaxe:
