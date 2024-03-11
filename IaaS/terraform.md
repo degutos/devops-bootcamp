@@ -1072,3 +1072,88 @@ data "aws_ebs_volume" "gp2_volume" {
 }
 ```
 
+## Count
+
+- We can use the variable count to create the same resource many times. 
+- Because we can not create 3 files with the same name terraform will try to create 3 files and replace the other one.
+- To workaround we can create a variable filename with a list of 03 filenames
+  
+
+```
+resource "local_file" "pet {
+  filename = var.filename
+
+  count = 3
+}
+```
+
+```
+variable "filename" {
+  default = [
+    "/root/pets.txt",
+    "/root/dogs.txt",
+    "/root/cats.txt"
+  ]
+}
+```
+
+- If we have many filenames and we don't know how many, we can use a internal function length to count how many item there is in that list
+
+```
+resource "local_file" "pet {
+  filename = var.filename
+
+  count = length(var.filename)
+}
+```
+
+- We can also have other different functions 
+- TF consider this count function as a list and a list has order: item0, item1 and item2
+- If we delete the first item called item0, TF will destroy item0 and recreate as dog, will destroy and recreate as cats and will destroy item3
+  
+
+## For_each
+
+- As we know the count function is consider as a list, and list are indexed and can not be deleted and when we do all items from the list is destroyed and recreated.
+- To workaround on this issue we can use other function called for_each
+- For_each argument works only as a map or a set, not a list.
+
+```
+resource "local_file" "pet" {
+  filename = each.value 
+  for_each = var.filename
+}
+
+variable "filename" {
+  type=set(string)
+  default = [
+    "/root/pets.txt",
+    "/root/dogs.txt",
+    "/root/cats.txt"
+  ]
+}
+```
+
+- Another way of workaround on this issue is to use function toset, and in this case we can use a list of filename
+
+```
+resource "local_file" "pet" {
+  filename = each.value 
+  for_each = toset(var.filename)
+}
+
+
+```
+variable "filename" {
+  type=list(string)
+  default = [
+    "/root/pets.txt",
+    "/root/dogs.txt",
+    "/root/cats.txt"
+  ]
+}
+```
+
+- In this example the output if we run terraform output, TF will show the output as a map and not as list, so map has no index and will bypass the list issue when we delete a item in the list.
+
+
