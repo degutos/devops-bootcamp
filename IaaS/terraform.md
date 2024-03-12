@@ -1111,6 +1111,28 @@ resource "local_file" "pet {
 - TF consider this count function as a list and a list has order: item0, item1 and item2
 - If we delete the first item called item0, TF will destroy item0 and recreate as dog, will destroy and recreate as cats and will destroy item3
   
+  - Lets see one more nice example:
+
+```
+resource "local_sensitive_file" "name" {
+    filename = "/root/user-data"
+    content = "password: S3cr3tP@ssw0rd"
+
+}
+```
+
+variable.tf
+```
+variable "users" {
+    type = list(string)
+    default = [ "/root/user10", "/root/user11", "/root/user12", "/root/user10"]
+}
+variable "content" {
+    default = "password: S3cr3tP@ssw0rd"
+  
+}
+```
+
 
 ## For_each
 
@@ -1155,5 +1177,45 @@ variable "filename" {
 ```
 
 - In this example the output if we run terraform output, TF will show the output as a map and not as list, so map has no index and will bypass the list issue when we delete a item in the list.
+
+- Lets see another example:
+
+```
+resource "local_sensitive_file" "name" {
+    filename = each.value
+    content = var.content
+    for_each = toset(var.users)
+
+}
+```
+
+variables.tf
+```
+variable "users" {
+    type = list(string)
+    default = [ "/root/user10", "/root/user11", "/root/user12", "/root/user10"]
+}
+variable "content" {
+    default = "password: S3cr3tP@ssw0rd"
+  
+}
+```
+
+
+### Terraform Version
+
+- Usually TF downloads the latest version of each provider.
+- Lets say you want to change the version of a provider local. Go to Terraform Registry https://registry.terraform.io/providers and search for local. Ie. https://registry.terraform.io/providers/hashicorp/local/2.3.0 change the version on the top header and then click in "User Provider" you will see a code like this to add to your TF scripts 
+
+```
+terraform {
+  required_providers {
+    local = {
+      source = "hashicorp/local"
+      version = "2.3.0"
+    }
+  }
+}
+```
 
 
