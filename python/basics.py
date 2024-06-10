@@ -64,3 +64,16 @@ print(int(age) - 10)
 # another way to store the variable age as integer we can do
 # age = int(input("How old are you? "))
 # print(age - 10)
+
+
+
+
+# String Methods
+
+print("VARIABLE-1 " + "VARIABLE-2 ")
+
+print("ha" * 10)
+
+print("ha" * 2)
+
+
