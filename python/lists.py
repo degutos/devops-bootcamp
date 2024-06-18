@@ -99,3 +99,84 @@ print(list1)
 # using len function 
 list1=['h', 'e', 'l', 'l', 'o']
 print(len(list1))
+
+
+
+# How to find an average of a list of numbers
+
+ages = [56, 72, 24, 46]
+total = 0
+for age in ages:
+    total += age
+average = total / len(ages)
+print(average)
+
+
+# How to sum a list
+sum = 0
+values = [2,9,1,7]
+for number in values:
+    sum += number
+print(sum)
+
+# Another way of sum
+sum = 0
+values = [2,9,1,7]
+for number in values:
+    sum = sum + number
+print(sum)
+
+
+# using continue to skip your looping run and go back to beginning of your loop for
+for letter in 'KodeKloud':
+    if letter == 'e':
+        continue
+    print('Letter : ' + letter)
+
+
+
+# For within another For - printing 16 * asterisk 
+for x in [0, 1, 1, 3]:
+    for y in [0, 2, 1, 2]:
+            print('*')
+
+
+# Using enumerate function this will print position of the list and values  
+list1 = [1, 2, 3, 4]
+for i, j in enumerate(list1):
+     print(i, j)
+
+# Another example of enumerate and index
+list1 = [1, 2, 3, 4]
+for index, j in enumerate(list1):
+     print(index, j)
+
+
+# print all elements in the list from beginning to the end
+list1 = [10, 11, 12, 13, 14]
+print(list1[::1])
+
+# print from element 1 (second in the list) to the end - B C D E
+letters = ["A", "B", "C", "D", "E"]
+print(letters[1:])
+
+# print a list in opposite way
+list1=[4,0,7,1]
+print(list1[::-1])
+
+
+# List of list - this example it will print 4 5 6 7
+list1 = [[1,2,3,2,5],[4,5,6,7],[8,9,10]]
+for i in list1:
+      if len(i)==4:
+        print(i)
+
+# Append a number 15 at the end of a list - [10, 11, 12, 13, 14, 15]
+list1 = [10, 11, 12, 13, 14]
+list1.append(15)
+print(list1)
+
+# Printing a number in the position 0 within a list
+list1 = [10, 11, 12, 13, 14]
+print(list1[0])
+
