@@ -180,3 +180,59 @@ print(list1)
 list1 = [10, 11, 12, 13, 14]
 print(list1[0])
 
+
+
+
+# Slicing a list
+letters = ["A","B","C","D","E"]
+firstTwo = letters[0:2]
+print(firstTwo)
+# this will print A and B
+
+print(letters[1:]) # this will print B,C,D,E
+
+print(letters[:3]) # this will print A B C
+
+print(letters[1:-1]) # this will print B C D
+
+print(letters[1::]) # this will print B C D E
+
+print(letters[:]) # this will print entire list
+
+del letters[1:3] # this will delete list position number 1 and 2 which means delete B and C
+
+print(letters)
+
+del letters[:] # this will delete the entire list / array
+
+print(letters)
+
+
+
+# List can have different elements
+list1 = [1, 66, "python", [11, 55, "cat"], [ ], 2.22, True]
+print(list1[2:4]) # this will print "python 11 55 cat"
+
+list1 = [1, 66, "python", [11, 55, "cat"], [ ], 2.22, True]
+print(list1[0:4]) # this will print [1, 66, "python", [11, 55, "cat"]]
+
+my_list = [0, 1, 2, 3, 4]
+print(my_list[::-1]) # this will print entire list in opposite way
+
+my_list = [0, 1, 2, 3, 4]
+my_list.append("python")
+print(my_list[2:]) # this will print [2, 3, 4, python]
+
+my_list = [0, 1, 2, 3, 4]
+print(my_list[-1]) # this will print 4
+
+my_list = [0, 1, 2, 3, 4]
+my_list.append("python")
+b = my_list[1:]
+print(b) # this will print [1, 2, 3, 4, python]
+
+my_list = [0, 1, 2, 3, 4]
+print(my_list[::3]) # this will print 0 and 3
+
+
+
