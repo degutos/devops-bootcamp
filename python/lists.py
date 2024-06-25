@@ -235,4 +235,49 @@ my_list = [0, 1, 2, 3, 4]
 print(my_list[::3]) # this will print 0 and 3
 
 
+# Finding an element in a list
 
+letters = ["A","B","C","D","E"]
+print("B" in letters)
+print("Z" in letters)
+
+print("B" not in letters) # we can use also the negative way
+
+
+# Finding a list and replacing
+
+list1 = [0, 3, 4, 1, 2]
+list1[2:5]=[8,9]
+print(list1) # this will print [0,3,8,9]
+
+
+list1 = [0, 3, 4, 1, 2]
+list1[2:4]=[1,2]
+print(list1) # this will print [0,3,1,2,2]
+
+
+list1 = [0, 3, 4, 1, 2]
+list1[1]=[8,9]
+print(list1) # this will print [0,[8,9],4,1,2]
+
+
+list1=[3,4,6,1,2]
+list2=list1
+list1[1]=9 
+print(list2) # this will print [3,9,6,1,2]
+
+
+my_list = [0, 1, 2, 3, 4]
+print(my_list.index(2)) # this will print 2
+
+Li = ['A','C','b', 1, 3, 4]
+print("A" in Li)
+
+
+countries = ["USA", "Canada", "India"]
+countries[0], countries[1] = countries[1], countries[0]
+print(countries) # replacing position - will print [Canada , USA , India]
+
+
+
+print((4, 6) not in [(4, 7), (5, 6), "hello"]) # check if 4 and 6 are in list - True
