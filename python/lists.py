@@ -281,3 +281,96 @@ print(countries) # replacing position - will print [Canada , USA , India]
 
 
 print((4, 6) not in [(4, 7), (5, 6), "hello"]) # check if 4 and 6 are in list - True
+
+
+
+
+# Nested List is a list within a list or a MATRIX
+
+classroom = [
+     ["Sam","Max","Joe","Anne"],
+     ["Sofie","Lisa","Tim","Sasha"],
+     ["Clarie","Sara","Leo","Kim"],
+     ["Zoe","Guy","Anna","Eva"],
+]
+
+student = classroom[3][3]
+print(student)
+
+
+
+
+matrix = [[j for j in range(3)] for i in range(3)] 
+print(matrix[2][1])
+print(matrix)
+# 0,1,2  0,1,2  0,1,2
+
+
+
+matrix = [[j for j in range(4)] for i in range(4)] 
+print(matrix[3][1])
+print(matrix)
+
+
+
+# this sample will create a matrix2 with all numbers in a SINGLE list
+# [0, 1, 2, 0, 1, 2, 0, 1, 2]
+matrix = [[0, 1, 2], [0, 1, 2], [0, 1, 2]]
+
+matrix2 = []
+
+for submatrix in matrix:
+  for val in submatrix:
+    matrix2.append(val)
+
+print(matrix2[2])
+print(matrix2)
+
+
+# this sample will create a matrix2 with all numbers in a SINGLE list
+# [0, 1, 2, 0, 1, 2, 0, 1, 2]
+matrix = [[0, 1, 2], [0, 1, 2], [0, 1, 2]]
+
+matrix2 = []
+
+for submatrix in matrix:
+  for val in submatrix:
+    matrix2.append(val)
+
+print(matrix2[0])
+
+
+
+
+
+
+countries = [['Egypt', 'USA', 'India'],
+       ['Dubai', 'America', 'Spain'], 
+       ['London', 'England', 'France']]
+countries2  = [country for sublist in countries for country in 
+                       sublist if len(country) < 6]
+print(countries2)
+
+
+
+
+
+countries = [['Egypt', 'USA', 'India'], ['Dubai', 'America', 'Spain'], ['London', 'England', 'France']]
+countries2  = [country for sublist in countries for country in sublist if len(country) < 4]
+print(countries2)
+
+
+
+
+
+a = []
+for i in range(5):
+    a.append([])
+    for j in range(5):
+        a[i].append(j)
+
+print(a[2][3])
+
+
+
+
