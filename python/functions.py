@@ -118,3 +118,97 @@ def is_true(a):
 
 result = is_true(6<3) 
 print("The result is", result)
+
+
+
+# Function and List
+# A function with a list
+
+def multipy_values(list):
+    multiplied_values = []
+    for item in list:
+        multiplied_values.append(item*2)
+    return multiplied_values
+
+print(multipy_values([1,2,3]))
+
+
+# Function to discover if a number in a list is even
+def get_even_func(numbers):
+    even_numbers = [num for num in numbers if not num % 2]
+    return even_numbers
+
+print(get_even_func([1, 2, 3, 4, 5, 6,8]))
+
+
+
+# Function to discover if a number in a list is a odd number
+def get_odd_func(numbers):
+    odd_numbers = [num for num in numbers if num % 2]
+    return odd_numbers
+
+print(get_odd_func([7, 4, 5, 6, 9, 8, 12]))
+
+
+
+
+def get_odd_func(numbers):
+    odd_numbers = [num for num in numbers if num % 2]
+    return odd_numbers
+
+print(get_odd_func([1, 2, 3, 4, 5, 6]))
+
+
+
+# Function average of a list of numbers
+
+def mean_func(list1):
+    return sum(list1) / len(list1)
+
+print(mean_func([5, 2, 2, 4]))
+
+
+# Function average of a list of numbers
+
+def mean_func(list1):
+    return sum(list1) / len(list1)
+
+print(mean_func([5, 6, 7, 8]))
+
+
+
+
+# Function names with a list of names
+def my_function(names):
+  for i in names:
+    print(i, end=' ')
+
+names = ["john", "mark", "emmy"]
+my_function(names)
+
+
+# function numbers with a list of numbers
+def my_function(numbers):
+  for i in numbers:
+    print(i+1, end=' ')
+
+numbers = [1, 2, 3] 
+my_function(numbers)
+
+# Function multiply and sum with list
+def my_function(numbers):
+  for i in numbers:
+    print(i*2+10, end=' ')
+
+numbers = [1, 2, 3]
+my_function(numbers)
+
+
+# Function multiply a list - notice we are not multiplying each element we are multiplying a list 
+def double_list(numbers):
+  return 2 * numbers
+
+numbers = [1, 2, 3]
+print(double_list(numbers))
+
+
