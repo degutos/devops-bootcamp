@@ -212,3 +212,118 @@ numbers = [1, 2, 3]
 print(double_list(numbers))
 
 
+
+
+
+# SCOPES
+# variables within a function will be available only within a function 
+# and it can not be used outside of the function. This function will error
+def myfunc():
+  a = 20
+
+myfunc()
+print(a)
+
+
+# Fixing the error caused above
+def myfunc():
+  a = 20
+  print(a)
+
+myfunc()
+
+
+# Function and sub-function 
+def my_function():
+  x = 20
+  def my_inner_function():
+    print(x)
+  my_inner_function()
+my_function()
+
+
+
+
+function and sub-function 
+def my_function():
+  def my_inner_function():
+    x = 20
+    print(x)
+  my_inner_function()
+
+my_function()
+
+
+
+
+def my_function():
+  def my_inner_function():
+    x = 20
+  print(x)
+  my_inner_function()
+
+my_function()
+
+
+# Function variable global and variable local
+x = 20
+def my_function():
+  x = 30
+  print(x, end=' ')
+
+my_function()
+print(x, end=' ')
+
+
+
+
+# Function variable global
+def my_function():
+  global x
+  x = 30
+
+my_function()
+print(x)
+
+
+# Function that will print and global value of x
+x = 20
+def my_function():
+   x=30
+   return x
+
+print(x)
+
+
+
+
+x = 30
+def my_function():
+  global x
+  x = 20
+
+my_function()
+print(x)
+
+
+
+
+# Diference between fuction with single variable and list
+# for single variable we will have age as global variable and num as local function variable
+age=22
+def multiply(num):
+   num *= 2
+   print("In multiply: ", str(num))
+
+multiply(age)
+print(age)
+
+
+# lists will have the new value assigned to a item of the list
+nums = [1,2,3]
+def change_first_item(list):
+   list[0]=9
+
+change_first_item(nums)
+print(nums)
+
