@@ -123,3 +123,50 @@ print(testdict) # this will print out {'brand': 'apple', 'ram': '3', 'year': 202
 # dictionary.copy()
 # dictionary.clear()
 
+
+# Lets print the keys
+testdict = {
+  "brand": "Samsung",
+  "ram": "3",
+  "Os": "Android",
+  "year": 2020
+}
+
+print(testdict.keys())
+
+
+
+# Lets use the method dictionary.items() - here it turn the dictionary in tuples
+testdict = {
+  "brand": "Samsung",
+  "ram": "3",
+  "Os": "Android",
+  "year": 2020
+}
+
+print(testdict.items())
+
+
+
+
+
+# Lets add a item in the dictionary and this item already exists
+testdict = {
+  "brand": "Samsung",
+  "ram": "3",
+  "Os": "Android",
+  "year": 2020
+}
+
+testdict.update({'brand':'oppo' })
+print(testdict)
+
+
+# Lets delete a item and value in a dictionary
+testdict = {'brand': 'oppo', 'ram': '3', 'Os': 'Android', 'year': 2020}
+del testdict['brand']
+print(testdict)
+
+
+
+
