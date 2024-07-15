@@ -44,3 +44,82 @@ print(a[2])
 # Another example slicing with tuples and list inside.
 a=(10,[20,30],40,50)
 print(a[1][1])
+
+
+
+
+##### Dictionary
+# Dictionary is a object to store data values in key-value
+# Dictionary is a collection that is ordered, changeable and does not allow duplicates
+
+
+usernames = {
+    "lydia":"lydiahalllie",
+    "sarah":"sarah123",
+    "max":"max_",
+    "joe":"joejoe",
+}
+
+
+print(usernames)
+
+print(usernames.keys())
+print(usernames.values())
+
+for key in usernames.keys():
+    print(key + " - " + usernames[key])
+
+
+
+# Let change a value
+usernames["max"] = "max123"
+print(usernames["max"])
+print(usernames)
+
+
+# Lets add a new item in the dictionary
+usernames.update({"chloe":"chloe123"})
+print(usernames)
+
+
+# Lets delete a item in the dictionary
+del usernames["max"]
+print(usernames)
+
+
+# Lets remove or delete the last item in the dictionary
+usernames.popitem()
+print(usernames)
+
+
+# Lets copy a entire dictionary to a new dictionary variable
+usernames_copy = usernames.copy()
+print(usernames_copy)
+
+# Lets remove or delete all items in the dictionary
+usernames.clear()
+print(usernames)
+
+
+
+# Lets understand how dictionaries can not be duplicated
+testdict = {
+  "brand": "apple",
+  "ram": "3",
+  "year": 2020,
+  "year": 2021
+}
+
+print(testdict) # this will print out {'brand': 'apple', 'ram': '3', 'year': 2021} as we see year was replaced
+
+
+
+# Lets see some examples of dictionary methods 
+# dictionary.values()
+# dictionary.keys()
+# dictionary.items()
+# dictionary.update()
+# dictionary.popitem()
+# dictionary.copy()
+# dictionary.clear()
+
